@@ -3876,7 +3876,7 @@ var Plottable;
             this._annotatedTicksToRender().forEach(function (annotatedTick) {
                 var position = _this._scale.scale(annotatedTick);
                 var length = measurements.get(annotatedTick).width;
-                if (position < 0 || position + length > dimension) {
+                if (position < 0 ) {
                     annotationToTier.set(annotatedTick, -1);
                     return;
                 }
