@@ -3745,11 +3745,13 @@ var Plottable;
             var axisHeight = this._isHorizontal() ? this.height() : this.width();
             var axisHeightWithoutMarginAndAnnotations = this._coreSize();
             var numTiers = Math.min(this.annotationTierCount(), Math.floor((axisHeight - axisHeightWithoutMarginAndAnnotations) / tierHeight));
+            
             annotationToTier.forEach(function (tier, annotation) {
                 if (tier === -1 || tier >= numTiers) {
                     hiddenAnnotations.add(annotation);
                 }
             });
+
             var bindElements = function (selection, elementName, className) {
                 var elements = selection.selectAll("." + className).data(annotatedTicks);
                 elements.enter().append(elementName).classed(className, true);
@@ -3806,21 +3808,28 @@ var Plottable;
                         return offsetF(d) - measurements.get(d).height;
                 }
             };
+            var axisWidth = this.width();
             bindElements(this._annotationContainer.select(".annotation-rect-container"), "rect", Axis.ANNOTATION_RECT_CLASS)
                 .attr({
-                x: isHorizontal ? positionF : rectangleOffsetF,
+                x: isHorizontal ? (function (d) { 
+                  if ( positionF(d) + measurements.get(d).width > axisWidth ) {
+                    return positionF(d) - measurements.get(d).width;
+                  }
+                  return positionF(d);
+                }) : rectangleOffsetF,
                 y: isHorizontal ? rectangleOffsetF : positionF,
                 width: isHorizontal ? function (d) { return measurements.get(d).width; } : function (d) { return measurements.get(d).height; },
                 height: isHorizontal ? function (d) { return measurements.get(d).height; } : function (d) { return measurements.get(d).width; },
                 visibility: visibilityF,
             });
+
             var annotationWriter = this._annotationWriter;
             var annotationFormatter = this.annotationFormatter();
             var annotationLabels = bindElements(this._annotationContainer.select(".annotation-label-container"), "g", Axis.ANNOTATION_LABEL_CLASS);
-            annotationLabels.selectAll(".text-container").remove();
+            annotationLabels.selectAll(".text-container").remove()
             annotationLabels.attr({
                 transform: function (d) {
-                    var xTranslate = isHorizontal ? positionF(d) : rectangleOffsetF(d);
+                    var xTranslate = isHorizontal ? ((positionF(d) + measurements.get(d).width > axisWidth ) ? (positionF(d) - measurements.get(d).width) : positionF(d) ) : rectangleOffsetF(d);
                     var yTranslate = isHorizontal ? rectangleOffsetF(d) : positionF(d);
                     return "translate(" + xTranslate + "," + yTranslate + ")";
                 },
