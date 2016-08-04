@@ -3883,7 +3883,6 @@ var Plottable;
                 var tierHasCollision = function (testTier) { return annotationTiers[testTier].some(function (testTick) {
                     var testPosition = _this._scale.scale(testTick);
                     var testLength = measurements.get(testTick).width;var testLeftFacing = testPosition + testLength > _this._width;
-                    console.log("pos: " + position + " length: " + length + " testPos: " + testPosition + " testLen: " + testLength);
                     return (position + length >= testPosition && position <= testPosition + testLength) || ((testPosition - testLength <= position || testPosition - testLength <= position + length) <= position && testLeftFacing);                }); };
                 var tier = 0;
                 while (tierHasCollision(tier)) {
